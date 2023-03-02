@@ -3,11 +3,17 @@ function errorHandler(err, req, res, next) {
     msg: err.msg || err.message || 'Something went wrong',
     statusCode: err.statusCode || 500,
   };
+
+  if (err.name === 'CastError') {
+    customError.msg = 'Not Found';
+    customError.statusCode = 404;
+  }
+
   if (err.name === 'ValidationError') {
     // check for omitted required fields and set statusCode to 400
     let errStatusCode = null;
-    if (err.details[0].type === 'string.empty') errStatusCode = 400;
-
+    if (err.details && err.details[0].type === 'string.empty')
+      errStatusCode = 400;
     customError.msg = err.errors
       ? Object.values(err.errors)
           .map((item) => item.message)
